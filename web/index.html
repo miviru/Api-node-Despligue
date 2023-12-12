@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Nombres</title>
+</head>
+<body>
+<h3>Introduzca su nombre</h3>
+
+<form id="nameForm">
+    <label for="nombre">Nombre:</label>
+    <input type="text" id="nombre" required>
+    <button type="button" onclick="guardarNombre()">Guardar</button>
+</form>
+
+<h3>Lista de nombres</h3>
+<ul id="listaNombre"></ul>
+<script>
+    async function guardarNombre() {
+        const nombre = document.getElementById('nombre');
+        const name = nombre.value;
+
+        try {
+            const response = await fetch('http://localhost:3000/user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name })
+            });
+
+            if (response.ok) {
+                console.log('Nombre guardado exitosamente');
+                nombre.value = '';
+                cargarNombre();
+            } else {
+                console.error('Error al guardar el nombre:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error de red:', error.message);
+        }
+    }
+
+    async function cargarNombre() {
+        const listaNombres = document.getElementById('listaNombres');
+
+        try {
+            const response = await fetch('http://localhost:3000/users');
+            if (response.ok) {
+                const users = await response.json();
+
+                listaNombres.innerHTML = '';
+
+                users.forEach(user => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = user.name;
+                    listaNombres.appendChild(listItem);
+                });
+            } else {
+                console.error('Error al obtener nombres:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error de red:', error.message);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', cargarNombre);
+</script>
+</body>
+</html>
